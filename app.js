@@ -315,7 +315,7 @@
           <h1 id="home-title">D&amp;D species navigation study</h1>
           <p>Complete ten short finding tasks or explore the structure without recording data.</p>
           <div class="notice">
-            <p><strong>Draft task wording:</strong> the test engine is complete, but the ten prompts are temporary placeholders.</p>
+            <p>Draft task wording: the test engine is complete, but the ten prompts are temporary placeholders.</p>
           </div>
         </div>
         <div class="actions vertical" aria-label="Choose a mode">

@@ -144,6 +144,11 @@ h3 {
   font-weight: 400;
 }
 
+strong,
+th {
+  font-weight: 400;
+}
+
 .narrow {
   max-width: 680px;
   margin-inline: auto;

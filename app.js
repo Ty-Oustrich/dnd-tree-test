@@ -313,10 +313,6 @@
       <section class="narrow stack" aria-labelledby="home-title">
         <div class="panel">
           <h1 id="home-title">D&amp;D species navigation study</h1>
-          <p>Complete ten short finding tasks or explore the structure without recording data.</p>
-          <div class="notice">
-            <p>Draft task wording: the test engine is complete, but the ten prompts are temporary placeholders.</p>
-          </div>
         </div>
         <div class="actions vertical" aria-label="Choose a mode">
           <button type="button" data-action="open-name">Start tree test</button>
@@ -331,7 +327,6 @@
       <section class="narrow stack" aria-labelledby="name-title">
         <div class="panel">
           <h1 id="name-title">Enter participant name</h1>
-          <p>Your name and test activity will stay in this browser until you download the CSV. Nothing is sent to a server.</p>
           <form id="name-form" class="stack" novalidate>
             <div class="field">
               <label for="participant-name">Participant name</label>
@@ -348,23 +343,7 @@
   }
 
   function instructionsHtml() {
-    return `
-      <section class="narrow stack" aria-labelledby="instructions-title">
-        <div class="panel">
-          <h1 id="instructions-title">How the test works</h1>
-          <ul class="checklist">
-            <li>You will complete the same ten tasks as every other participant, in a random order.</li>
-            <li>Use species type and relative size to find one destination for each task.</li>
-            <li>You may use breadcrumbs to move backward.</li>
-            <li>Submit one selection per task. The test will not tell you whether it was correct.</li>
-            <li>Your clicks, backward moves, selection, and time are recorded in a downloadable CSV.</li>
-          </ul>
-        </div>
-        <div class="actions">
-          <button type="button" data-action="begin-test">Begin test</button>
-          <button type="button" data-action="open-name">Change name</button>
-        </div>
-      </section>`;
+    return "";
   }
 
   function toolbarHtml() {
@@ -406,7 +385,7 @@
   function navHtml() {
     return `
       <nav class="global-nav" aria-label="Species type">
-        <h2>1. Choose a species type</h2>
+        <h2>Species type</h2>
         <ul class="nav-list">
           ${TYPES.map((type) => `
             <li><button class="nav-button" type="button" data-action="type" data-value="${escapeHtml(type)}" aria-pressed="${state.typeFilter === type}">${escapeHtml(type)}</button></li>`).join("")}
@@ -417,7 +396,7 @@
   function sizeHtml() {
     return `
       <aside class="size-sidebar" aria-labelledby="size-title">
-        <h2 id="size-title">2. Choose a relative size</h2>
+        <h2 id="size-title">Relative size</h2>
         <ul class="size-list">
           ${SIZES.map((size) => `
             <li><button class="size-button" type="button" data-action="size" data-value="${escapeHtml(size)}" aria-pressed="${state.sizeFilter === size}">${escapeHtml(size)}</button></li>`).join("")}
@@ -461,31 +440,23 @@
           <div class="terminal-choice">${escapeHtml(state.selectedSpecies)}</div>
           ${state.mode === "test"
             ? `<button type="button" data-action="submit-selection">Submit selection</button>`
-            : `<p>This is the terminal information block for ${escapeHtml(state.selectedSpecies)}.</p>`}
+            : ""}
         </section>`;
     }
 
     if (!state.typeFilter && !state.sizeFilter) {
-      return `
-        <section class="notice" aria-labelledby="results-title">
-          <h2 id="results-title">Choose a route</h2>
-          <p>Begin with a species type above or a relative size at left. Species appear after both facets are selected.</p>
-        </section>`;
+      return "";
     }
 
-    if (!state.typeFilter || !state.sizeFilter) {
-      const next = state.typeFilter ? "relative size" : "species type";
-      return `
-        <section class="notice" aria-labelledby="results-title">
-          <h2 id="results-title">One more choice</h2>
-          <p>You selected ${escapeHtml(state.typeFilter || state.sizeFilter)}. Now choose a ${next}.</p>
-        </section>`;
-    }
-
-    const matches = SPECIES.filter((item) => item.types.includes(state.typeFilter) && item.size === state.sizeFilter);
+    const matches = SPECIES.filter((item) => {
+      const matchesType = !state.typeFilter || item.types.includes(state.typeFilter);
+      const matchesSize = !state.sizeFilter || item.size === state.sizeFilter;
+      return matchesType && matchesSize;
+    });
+    const heading = [state.sizeFilter, state.typeFilter].filter(Boolean).join(" ");
     return `
       <section aria-labelledby="results-title">
-        <h2 id="results-title">${escapeHtml(state.sizeFilter)} ${escapeHtml(state.typeFilter)}</h2>
+        <h2 id="results-title">${escapeHtml(heading)}</h2>
         <p>${matches.length} information block${matches.length === 1 ? "" : "s"}</p>
         ${matches.length
           ? `<ul class="species-grid">${matches.map((item) => `<li><button class="species-button" type="button" data-action="leaf" data-value="${escapeHtml(item.name)}">${escapeHtml(item.name)}</button></li>`).join("")}</ul>`
@@ -515,7 +486,6 @@
         </div>
         <div class="panel">
           <h1 id="recorded-title">Selection recorded</h1>
-          <p>No correctness feedback is shown during the test.</p>
           <button type="button" data-action="next-task">${state.taskIndex < state.taskOrder.length - 1 ? "Continue to next task" : "Finish test"}</button>
         </div>
       </section>`;
@@ -526,7 +496,6 @@
       <section class="narrow stack" aria-labelledby="complete-title">
         <div class="panel">
           <h1 id="complete-title">Test complete</h1>
-          <p>All ten selections have been recorded. Download the CSV and give it to the study facilitator.</p>
           <div class="actions">
             <button type="button" data-action="export">Download CSV</button>
             <button type="button" data-action="new-test">Start another participant</button>
@@ -559,7 +528,7 @@
             <li>True wireframe fidelity: black and white, one font, generic boxes, no imagery.</li>
             <li>All ${SPECIES.length} information blocks are generated from one data source.</li>
             <li>Two routes: species type in global navigation and relative size in the sidebar.</li>
-            <li>Two hierarchy levels are required before terminal species blocks appear.</li>
+            <li>Species type displays every species in that category; relative size is an optional second route and filter.</li>
             <li>Every leaf has an unambiguous “You selected X” terminal state.</li>
             <li>Test mode records clicks, breadcrumbs, browser Back actions, results, and timing in one CSV.</li>
             <li>Free-roam mode provides unrecorded coverage inspection.</li>
@@ -682,9 +651,7 @@
       field.focus();
       return;
     }
-    state.screen = "instructions";
-    writeHistory(false);
-    render();
+    startSession();
   });
 
   document.addEventListener("click", (event) => {

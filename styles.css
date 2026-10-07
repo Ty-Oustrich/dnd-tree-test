@@ -1,0 +1,432 @@
+:root {
+  color-scheme: light;
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  color: #000;
+  background: #fff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  background: #fff;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: #000;
+  background: #fff;
+  font-family: Arial, sans-serif;
+  line-height: 1.5;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button,
+.button-link,
+.site-title,
+a {
+  color: #000;
+}
+
+button,
+.button-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0.7rem 1rem;
+  border: 2px solid #000;
+  border-radius: 0;
+  color: #000;
+  background: #fff;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+button:hover,
+button:focus-visible,
+.button-link:hover,
+.button-link:focus-visible,
+.nav-button[aria-pressed="true"],
+.size-button[aria-pressed="true"] {
+  color: #fff;
+  background: #000;
+  outline: none;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+  outline: 3px solid #000;
+  outline-offset: 3px;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 1;
+  border-style: dashed;
+}
+
+.skip-link {
+  position: absolute;
+  top: -10rem;
+  left: 1rem;
+  z-index: 20;
+  padding: 0.75rem;
+  border: 2px solid #000;
+  background: #fff;
+}
+
+.skip-link:focus {
+  top: 1rem;
+}
+
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem max(1rem, calc((100vw - 1120px) / 2));
+  border-bottom: 2px solid #000;
+}
+
+.site-title {
+  font-size: 1.05rem;
+  font-weight: 400;
+  text-decoration: none;
+}
+
+.wireframe-label {
+  padding: 0.25rem 0.45rem;
+  border: 1px solid #000;
+  font-size: 0.75rem;
+}
+
+main {
+  width: min(1120px, 100%);
+  margin: 0 auto;
+  padding: 2rem 1rem 4rem;
+}
+
+main:focus {
+  outline: none;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  font-size: clamp(1.65rem, 4vw, 2.2rem);
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+h2 {
+  font-size: 1.3rem;
+  font-weight: 400;
+}
+
+h3 {
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+.narrow {
+  max-width: 680px;
+  margin-inline: auto;
+}
+
+.panel,
+.task-card,
+.terminal-card,
+.notice,
+.notes-section {
+  padding: 1.25rem;
+  border: 2px solid #000;
+  background: #fff;
+}
+
+.stack {
+  display: grid;
+  gap: 1rem;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.actions.vertical {
+  display: grid;
+}
+
+.actions.vertical > * {
+  width: 100%;
+}
+
+.text-link {
+  text-decoration: underline;
+  text-underline-offset: 0.2rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.field label {
+  font-size: 1rem;
+}
+
+.field input {
+  width: 100%;
+  min-height: 44px;
+  padding: 0.7rem;
+  border: 2px solid #000;
+  border-radius: 0;
+  color: #000;
+  background: #fff;
+}
+
+.error {
+  margin: 0;
+  padding: 0.6rem;
+  border: 2px solid #000;
+}
+
+.mode-banner,
+.test-toolbar,
+.task-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.mode-banner,
+.test-toolbar {
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  border: 2px solid #000;
+}
+
+.task-card {
+  margin-bottom: 1rem;
+}
+
+.task-card p:last-child,
+.panel p:last-child,
+.notice p:last-child {
+  margin-bottom: 0;
+}
+
+.global-nav {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border: 2px solid #000;
+}
+
+.global-nav h2,
+.size-sidebar h2,
+.results-region h2 {
+  margin-bottom: 0.75rem;
+  font-size: 1rem;
+}
+
+.nav-list,
+.size-list,
+.species-grid {
+  display: grid;
+  gap: 0.65rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nav-list {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.browse-layout {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.size-sidebar,
+.results-region {
+  padding: 1rem;
+  border: 2px solid #000;
+}
+
+.size-sidebar {
+  position: sticky;
+  top: 1rem;
+}
+
+.species-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.species-button {
+  width: 100%;
+  min-height: 64px;
+}
+
+.breadcrumb-wrap {
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  border: 2px solid #000;
+}
+
+.breadcrumbs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.crumb-button {
+  min-height: 36px;
+  padding: 0.35rem 0.55rem;
+  border-width: 1px;
+}
+
+.crumb-separator {
+  padding-inline: 0.15rem;
+}
+
+.terminal-card {
+  max-width: 680px;
+  margin: 2rem auto 0;
+  text-align: center;
+}
+
+.terminal-choice {
+  margin: 1.5rem 0;
+  padding: 1.5rem;
+  border: 2px solid #000;
+  font-size: 1.35rem;
+}
+
+.progress {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 0.25rem;
+  width: min(360px, 100%);
+}
+
+.progress span {
+  height: 12px;
+  border: 1px solid #000;
+  background: #fff;
+}
+
+.progress span.complete,
+.progress span.current {
+  background: #000;
+}
+
+.progress span.current {
+  outline: 2px solid #000;
+  outline-offset: 2px;
+}
+
+.table-wrap {
+  overflow-x: auto;
+  border: 2px solid #000;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+th,
+td {
+  padding: 0.65rem;
+  border-right: 1px solid #000;
+  border-bottom: 1px solid #000;
+  text-align: left;
+  vertical-align: top;
+}
+
+th:last-child,
+td:last-child {
+  border-right: 0;
+}
+
+tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.checklist {
+  margin-bottom: 0;
+  padding-left: 1.25rem;
+}
+
+.checklist li + li {
+  margin-top: 0.5rem;
+}
+
+.muted-rule {
+  border: 0;
+  border-top: 1px solid #000;
+  margin: 1.25rem 0;
+}
+
+@media (max-width: 760px) {
+  .site-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .nav-list,
+  .species-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .browse-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .size-sidebar {
+    position: static;
+  }
+
+  .size-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 460px) {
+  .nav-list,
+  .species-grid,
+  .size-list {
+    grid-template-columns: 1fr;
+  }
+
+  .actions > * {
+    width: 100%;
+  }
+}

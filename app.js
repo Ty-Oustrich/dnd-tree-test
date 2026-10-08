@@ -427,11 +427,13 @@
           <button class="sort-button" type="button" data-action="sort" data-value="az" aria-pressed="${state.sortMode === "az"}">Sort A-Z</button>
           <button class="sort-button" type="button" data-action="sort" data-value="commonality" aria-pressed="${state.sortMode === "commonality"}">Sort by Commonality</button>
         </div>
-        <h2>Species type</h2>
-        <ul class="nav-list">
-          ${TYPES.map((type) => `
-            <li><button class="nav-button" type="button" data-action="type" data-value="${escapeHtml(type)}" aria-pressed="${state.typeFilter === type}">${escapeHtml(type)}</button></li>`).join("")}
-        </ul>
+        <div class="species-type-group">
+          <h2 class="species-type-title">Species type</h2>
+          <ul class="nav-list">
+            ${TYPES.map((type) => `
+              <li><button class="nav-button" type="button" data-action="type" data-value="${escapeHtml(type)}" aria-pressed="${state.typeFilter === type}">${escapeHtml(type)}</button></li>`).join("")}
+          </ul>
+        </div>
       </nav>`;
   }
 

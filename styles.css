@@ -283,6 +283,15 @@ th {
   gap: 0.5rem;
 }
 
+.species-type-group {
+  width: max-content;
+  max-width: 100%;
+}
+
+.global-nav .species-type-title {
+  text-align: center;
+}
+
 .browse-layout {
   display: grid;
   grid-template-columns: 220px minmax(0, 1fr);

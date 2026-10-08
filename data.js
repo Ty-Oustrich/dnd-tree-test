@@ -127,9 +127,9 @@ window.TASKS = [
   },
   {
     id: "T05",
-    prompt: "The DM mentioned a Genasi npc and you want to learn more about what that species is, locate it.",
-    answer: "Genasi",
-    acceptedNames: ["Genasi"]
+    prompt: "You want to make a character that looks like your close friend and resembles them exactly, what will you choose? (serious, no jokes)",
+    answer: "Changeling",
+    acceptedNames: ["Changeling"]
   },
   {
     id: "T06",

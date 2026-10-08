@@ -272,7 +272,9 @@ th {
 }
 
 .nav-list {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
 .browse-layout {

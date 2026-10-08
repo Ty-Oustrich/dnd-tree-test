@@ -12,11 +12,11 @@ python3 -m http.server 4173
 
 ## Update the final tasks
 
-Edit `window.TASKS` near the bottom of `data.js`. Each task needs a unique `id`, participant-facing `prompt`, and exact `target` matching one species name in `window.SPECIES`.
+Edit `window.TASKS` near the bottom of `data.js`. Each task needs a unique `id`, participant-facing `prompt`, an `answer` summary for the CSV, and either `acceptedNames` or `criteria` for scoring.
 
 ## Update classifications
 
-Edit the applicable species record in `data.js`. The `types` array enables intentional cross-listing. `size` must be `Small`, `Medium`, or `Large`.
+Edit the applicable species record in `data.js`. The `types` array enables intentional cross-listing. `size` must be `Small`, `Medium`, or `Large`. Commonality assignments are defined in `COMMONALITY_BY_NAME`; names not listed there default to `Rare`.
 
 ## Data collection
 

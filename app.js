@@ -4,6 +4,7 @@
   const app = document.getElementById("app");
   const TYPES = window.TYPE_OPTIONS;
   const SIZES = window.SIZE_OPTIONS;
+  const COMMONALITY = window.COMMONALITY_OPTIONS;
   const SPECIES = window.SPECIES;
   const TASKS = window.TASKS;
 
@@ -24,6 +25,7 @@
     "screen",
     "type_filter",
     "size_filter",
+    "sort_mode",
     "action_label",
     "from_state",
     "to_state",
@@ -51,6 +53,7 @@
     backwardCount: 0,
     typeFilter: "",
     sizeFilter: "",
+    sortMode: "",
     filterOrder: [],
     selectedSpecies: "",
     historyReady: false
@@ -101,6 +104,7 @@
       mode: state.mode,
       typeFilter: state.typeFilter,
       sizeFilter: state.sizeFilter,
+      sortMode: state.sortMode,
       filterOrder: state.filterOrder.slice(),
       selectedSpecies: state.selectedSpecies,
       taskIndex: state.taskIndex
@@ -113,6 +117,7 @@
     state.mode = saved.mode;
     state.typeFilter = saved.typeFilter || "";
     state.sizeFilter = saved.sizeFilter || "";
+    state.sortMode = saved.sortMode || "";
     state.filterOrder = Array.isArray(saved.filterOrder) ? saved.filterOrder.slice() : [];
     state.selectedSpecies = saved.selectedSpecies || "";
     if (Number.isInteger(saved.taskIndex)) state.taskIndex = saved.taskIndex;
@@ -152,12 +157,13 @@
       task_position: task ? state.taskIndex + 1 : "",
       task_id: task ? task.id : "",
       task_prompt: task ? task.prompt : "",
-      target_species: task ? task.target : "",
+      target_species: task ? task.answer : "",
       task_elapsed_ms: task && state.taskStartedAt ? elapsedSince(state.taskStartedAt) : "",
       mode: "test",
       screen: state.screen,
       type_filter: state.typeFilter,
       size_filter: state.sizeFilter,
+      sort_mode: state.sortMode,
       action_label: options.actionLabel || "",
       from_state: options.fromState || "",
       to_state: options.toState || "",
@@ -172,6 +178,7 @@
   function resetFilters() {
     state.typeFilter = "";
     state.sizeFilter = "";
+    state.sortMode = "";
     state.filterOrder = [];
     state.selectedSpecies = "";
   }
@@ -232,7 +239,7 @@
   function finishTask(outcome) {
     const task = currentTask();
     const selected = outcome === "submitted" ? state.selectedSpecies : "";
-    const correct = selected ? selected === task.target : false;
+    const correct = selected ? matchesTaskAnswer(task, selected) : false;
     logEvent(outcome === "submitted" ? "task_submit" : "task_give_up", {
       rowType: "task_result",
       actionLabel: outcome === "submitted" ? "Submit selection" : "Give up",
@@ -249,6 +256,17 @@
     state.selectedSpecies = "";
     writeHistory(false);
     render();
+  }
+
+  function matchesTaskAnswer(task, selectedName) {
+    const species = SPECIES.find((item) => item.name === selectedName);
+    if (!species) return false;
+    if (Array.isArray(task.acceptedNames)) return task.acceptedNames.includes(selectedName);
+    const criteria = task.criteria || {};
+    const matchesSize = !criteria.size || species.size === criteria.size;
+    const matchesType = !criteria.type || species.types.includes(criteria.type);
+    const matchesCommonality = !criteria.commonality || species.commonality === criteria.commonality;
+    return matchesSize && matchesType && matchesCommonality;
   }
 
   function continueAfterTask() {
@@ -384,7 +402,12 @@
 
   function navHtml() {
     return `
-      <nav class="global-nav" aria-label="Species type">
+      <nav class="global-nav" aria-label="Browse species">
+        <h2>Browse all species</h2>
+        <div class="sort-actions">
+          <button class="sort-button" type="button" data-action="sort" data-value="az" aria-pressed="${state.sortMode === "az"}">Sort A-Z</button>
+          <button class="sort-button" type="button" data-action="sort" data-value="commonality" aria-pressed="${state.sortMode === "commonality"}">Sort by Commonality</button>
+        </div>
         <h2>Species type</h2>
         <ul class="nav-list">
           ${TYPES.map((type) => `
@@ -408,7 +431,12 @@
     const baseLabel = state.mode === "test" ? `Task ${state.taskIndex + 1}` : "Free roam";
     const trail = [{ label: baseLabel, key: "base" }];
     state.filterOrder.forEach((key) => {
-      trail.push({ label: key === "type" ? state.typeFilter : state.sizeFilter, key });
+      const labels = {
+        type: state.typeFilter,
+        size: state.sizeFilter,
+        sort: state.sortMode === "az" ? "Sort A-Z" : "Sort by Commonality"
+      };
+      trail.push({ label: labels[key], key });
     });
     if (state.selectedSpecies) trail.push({ label: state.selectedSpecies, key: "leaf" });
     return trail;
@@ -444,7 +472,7 @@
         </section>`;
     }
 
-    if (!state.typeFilter && !state.sizeFilter) {
+    if (!state.typeFilter && !state.sizeFilter && !state.sortMode) {
       return "";
     }
 
@@ -453,13 +481,35 @@
       const matchesSize = !state.sizeFilter || item.size === state.sizeFilter;
       return matchesType && matchesSize;
     });
-    const heading = [state.sizeFilter, state.typeFilter].filter(Boolean).join(" ");
+    const sortedMatches = matches.slice().sort((a, b) => a.name.localeCompare(b.name));
+    const heading = state.sortMode === "az"
+      ? "All species A-Z"
+      : [state.sizeFilter, state.typeFilter].filter(Boolean).join(" ");
+
+    if (state.sortMode === "commonality") {
+      return `
+        <section aria-labelledby="results-title">
+          <h2 id="results-title">Species by commonality</h2>
+          <p>${matches.length} information blocks, from rare to popular</p>
+          <div class="commonality-groups">
+            ${COMMONALITY.map((level) => {
+              const items = sortedMatches.filter((item) => item.commonality === level);
+              return `
+                <section class="commonality-group" aria-labelledby="commonality-${level.toLowerCase()}">
+                  <h3 id="commonality-${level.toLowerCase()}">${escapeHtml(level)}</h3>
+                  <ul class="species-grid">${items.map((item) => `<li><button class="species-button" type="button" data-action="leaf" data-value="${escapeHtml(item.name)}">${escapeHtml(item.name)}</button></li>`).join("")}</ul>
+                </section>`;
+            }).join("")}
+          </div>
+        </section>`;
+    }
+
     return `
       <section aria-labelledby="results-title">
         <h2 id="results-title">${escapeHtml(heading)}</h2>
         <p>${matches.length} information block${matches.length === 1 ? "" : "s"}</p>
         ${matches.length
-          ? `<ul class="species-grid">${matches.map((item) => `<li><button class="species-button" type="button" data-action="leaf" data-value="${escapeHtml(item.name)}">${escapeHtml(item.name)}</button></li>`).join("")}</ul>`
+          ? `<ul class="species-grid">${sortedMatches.map((item) => `<li><button class="species-button" type="button" data-action="leaf" data-value="${escapeHtml(item.name)}">${escapeHtml(item.name)}</button></li>`).join("")}</ul>`
           : `<div class="notice"><p>No information blocks are assigned to this combination. Use the breadcrumbs to try another path.</p></div>`}
       </section>`;
   }
@@ -527,7 +577,7 @@
           <ul class="checklist">
             <li>True wireframe fidelity: black and white, one font, generic boxes, no imagery.</li>
             <li>All ${SPECIES.length} information blocks are generated from one data source.</li>
-            <li>Two routes: species type in global navigation and relative size in the sidebar.</li>
+            <li>Four routes: A-Z, commonality, species type, and relative size.</li>
             <li>Species type displays every species in that category; relative size is an optional second route and filter.</li>
             <li>Every leaf has an unambiguous “You selected X” terminal state.</li>
             <li>Test mode records clicks, breadcrumbs, browser Back actions, results, and timing in one CSV.</li>
@@ -539,9 +589,9 @@
           <h2 id="coverage-title">Information-block coverage (${SPECIES.length})</h2>
           <div class="table-wrap">
             <table>
-              <thead><tr><th scope="col">Information block</th><th scope="col">Type placement</th><th scope="col">Relative size</th><th scope="col">Basis</th></tr></thead>
+              <thead><tr><th scope="col">Information block</th><th scope="col">Type placement</th><th scope="col">Relative size</th><th scope="col">Commonality</th><th scope="col">Basis</th></tr></thead>
               <tbody>
-                ${SPECIES.map((item) => `<tr><td>${escapeHtml(item.name)}</td><td>${escapeHtml(item.types.join(", "))}</td><td>${escapeHtml(item.size)}</td><td>${item.source === "card-sort" ? "Card-sort set" : "Prototype extension"}</td></tr>`).join("")}
+                ${SPECIES.map((item) => `<tr><td>${escapeHtml(item.name)}</td><td>${escapeHtml(item.types.join(", "))}</td><td>${escapeHtml(item.size)}</td><td>${escapeHtml(item.commonality)}</td><td>${item.source === "card-sort" ? "Card-sort set" : "Prototype extension"}</td></tr>`).join("")}
               </tbody>
             </table>
           </div>
@@ -583,6 +633,8 @@
   function chooseFacet(key, value) {
     const property = key === "type" ? "typeFilter" : "sizeFilter";
     const previous = state[property];
+    state.sortMode = "";
+    state.filterOrder = state.filterOrder.filter((item) => item !== "sort");
     state[property] = value;
     state.selectedSpecies = "";
     if (!state.filterOrder.includes(key)) state.filterOrder.push(key);
@@ -596,11 +648,29 @@
     render();
   }
 
+  function chooseSort(value) {
+    const previous = state.sortMode;
+    state.typeFilter = "";
+    state.sizeFilter = "";
+    state.sortMode = value;
+    state.selectedSpecies = "";
+    state.filterOrder = ["sort"];
+    logEvent("sort_select", {
+      actionLabel: value === "az" ? "Sort A-Z" : "Sort by Commonality",
+      fromState: previous || "unselected",
+      toState: value,
+      navigationClick: true
+    });
+    writeHistory(false);
+    render();
+  }
+
   function useBreadcrumb(index) {
     const from = breadcrumbTrail().map((item) => item.label).join(" > ");
     const keep = state.filterOrder.slice(0, index);
     if (!keep.includes("type")) state.typeFilter = "";
     if (!keep.includes("size")) state.sizeFilter = "";
+    if (!keep.includes("sort")) state.sortMode = "";
     state.filterOrder = keep;
     state.selectedSpecies = "";
     const to = breadcrumbTrail().map((item) => item.label).join(" > ");
@@ -673,6 +743,7 @@
     if (action === "begin-test") startSession();
     if (action === "type") chooseFacet("type", control.dataset.value);
     if (action === "size") chooseFacet("size", control.dataset.value);
+    if (action === "sort") chooseSort(control.dataset.value);
     if (action === "crumb") useBreadcrumb(Number(control.dataset.index));
     if (action === "leaf") openLeaf(control.dataset.value);
     if (action === "submit-selection") finishTask("submitted");

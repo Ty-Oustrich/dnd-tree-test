@@ -85,22 +85,82 @@ window.SPECIES = [
   { name: "Yuan-ti", types: ["Humanoids", "Beasts", "Magical"], size: "Medium", source: "prototype-extension" }
 ];
 
-/*
- * Draft tasks. Replace the prompt and target together after the final ten
- * task statements are written. Every participant receives all ten once; the
- * application randomizes their order when a test starts.
- */
+const COMMONALITY_BY_NAME = {
+  Popular: ["Dragonborn", "Dwarf", "Elf", "Gnome", "Half-Elf", "Halfling", "Human", "Tiefling"],
+  Common: ["Aarakocra", "Aasimar", "Bugbear", "Centaur", "Genasi", "Goblin", "Goliath", "Half-Orc", "Harengon", "Hobgoblin", "Kenku", "Kobold", "Lizardfolk", "Orc", "Tabaxi", "Tortle", "Triton", "Warforged"],
+  Uncommon: ["Air Genasi", "Astral Elf", "Autognome", "Changeling", "Deep Gnome", "Dhampir", "Duergar", "Earth Genasi", "Eladrin", "Fairy", "Firbolg", "Fire Genasi", "Giff", "Githyanki", "Githzerai", "Grung", "Hadozee", "Hexblood", "Kalashtar", "Kender", "Leonin", "Locathah", "Loxodon", "Minotaur", "Owlin", "Plasmoid", "Reborn", "Satyr", "Sea Elf", "Shadar-kai", "Shifter", "Simic Hybrid", "Thri-kreen", "Vedalken", "Verdan", "Water Genasi", "Yuan-ti"]
+};
+
+window.COMMONALITY_OPTIONS = ["Rare", "Uncommon", "Common", "Popular"];
+
+window.SPECIES.forEach((species) => {
+  species.commonality = window.COMMONALITY_OPTIONS.find((level) =>
+    COMMONALITY_BY_NAME[level] && COMMONALITY_BY_NAME[level].includes(species.name)
+  ) || "Rare";
+});
+
+/* Every participant receives all ten tasks once in a randomized order. */
 window.TASKS = [
-  { id: "T01", prompt: "[DRAFT] Find the information block for Tortle.", target: "Tortle" },
-  { id: "T02", prompt: "[DRAFT] Find the information block for Goliath.", target: "Goliath" },
-  { id: "T03", prompt: "[DRAFT] Find the information block for Goblin.", target: "Goblin" },
-  { id: "T04", prompt: "[DRAFT] Find the information block for Aasimar.", target: "Aasimar" },
-  { id: "T05", prompt: "[DRAFT] Find the information block for Warforged.", target: "Warforged" },
-  { id: "T06", prompt: "[DRAFT] Find the information block for Aarakocra.", target: "Aarakocra" },
-  { id: "T07", prompt: "[DRAFT] Find the information block for Plasmoid.", target: "Plasmoid" },
-  { id: "T08", prompt: "[DRAFT] Find the information block for Halfling.", target: "Halfling" },
-  { id: "T09", prompt: "[DRAFT] Find the information block for Centaur.", target: "Centaur" },
-  { id: "T10", prompt: "[DRAFT] Find the information block for Water Genasi.", target: "Water Genasi" }
+  {
+    id: "T01",
+    prompt: "A friend is playing a robot character in your campaign. Find which species they are using.",
+    answer: "Warforged",
+    acceptedNames: ["Warforged"]
+  },
+  {
+    id: "T02",
+    prompt: "You want to play a tiny chaotic character and want a species to match.",
+    answer: "Any Small species",
+    criteria: { size: "Small" }
+  },
+  {
+    id: "T03",
+    prompt: "You are playing a dragon-themed campaign and want to find a dragon-like character to play as.",
+    answer: "Dragonborn or Kobold",
+    acceptedNames: ["Dragonborn", "Kobold"]
+  },
+  {
+    id: "T04",
+    prompt: "Your friend is playing D&D for the first time and they want a common species to start out. Help them pick one.",
+    answer: "Any Common species",
+    criteria: { commonality: "Common" }
+  },
+  {
+    id: "T05",
+    prompt: "The DM mentioned a Genasi npc and you want to learn more about what that species is, locate it.",
+    answer: "Genasi",
+    acceptedNames: ["Genasi"]
+  },
+  {
+    id: "T06",
+    prompt: "You love orcs playing orc characters and you want to look up its species stats.",
+    answer: "Orc",
+    acceptedNames: ["Orc"]
+  },
+  {
+    id: "T07",
+    prompt: "Your party is attacking a Plasmoid and you want to find its species traits.",
+    answer: "Plasmoid",
+    acceptedNames: ["Plasmoid"]
+  },
+  {
+    id: "T08",
+    prompt: "You want to create a character who lives under the water.",
+    answer: "Triton, Sea Elf, Locathah, or Water Genasi",
+    acceptedNames: ["Triton", "Sea Elf", "Locathah", "Water Genasi"]
+  },
+  {
+    id: "T09",
+    prompt: "You have never heard of the Harengon species and you want to know what it looks like.",
+    answer: "Harengon",
+    acceptedNames: ["Harengon"]
+  },
+  {
+    id: "T10",
+    prompt: "You are playing a sorcerer and you want to find a small character species that has magical traits.",
+    answer: "Any species that is both Small and Magical",
+    criteria: { size: "Small", type: "Magical" }
+  }
 ];
 
 window.TYPE_OPTIONS = ["Humanoids", "Beasts", "Goblinoids", "Magical"];

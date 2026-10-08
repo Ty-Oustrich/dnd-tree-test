@@ -7,6 +7,7 @@
   const COMMONALITY = window.COMMONALITY_OPTIONS;
   const SPECIES = window.SPECIES;
   const TASKS = window.TASKS;
+  const STORAGE_KEY = "dnd-tree-test-completed-sessions-v1";
 
   const CSV_COLUMNS = [
     "session_id",
@@ -56,10 +57,37 @@
     sortMode: "",
     filterOrder: [],
     selectedSpecies: "",
-    historyReady: false
+    historyReady: false,
+    savedSessions: loadSavedSessions()
   };
 
   let timerHandle = null;
+
+  function loadSavedSessions() {
+    try {
+      const saved = JSON.parse(window.localStorage.getItem(STORAGE_KEY) || "[]");
+      return Array.isArray(saved) ? saved : [];
+    } catch (error) {
+      return [];
+    }
+  }
+
+  function archiveCurrentSession() {
+    if (!state.sessionId || !state.events.length) return;
+    const alreadySaved = state.savedSessions.some((session) => session.sessionId === state.sessionId);
+    if (alreadySaved) return;
+    state.savedSessions.push({
+      sessionId: state.sessionId,
+      participantName: state.participantName,
+      completedAt: new Date().toISOString(),
+      events: state.events.slice()
+    });
+    try {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state.savedSessions));
+    } catch (error) {
+      // Keep the completed session available in this tab if browser storage is unavailable.
+    }
+  }
 
   function escapeHtml(value) {
     return String(value)
@@ -68,14 +96,6 @@
       .replaceAll(">", "&gt;")
       .replaceAll('"', "&quot;")
       .replaceAll("'", "&#039;");
-  }
-
-  function slugify(value) {
-    return String(value)
-      .trim()
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-|-$/g, "") || "participant";
   }
 
   function makeSessionId() {
@@ -282,6 +302,7 @@
       fromState: "between_tasks",
       toState: "complete"
     });
+    archiveCurrentSession();
     writeHistory(false);
     render();
   }
@@ -293,24 +314,22 @@
 
   function createCsv() {
     const lines = [CSV_COLUMNS.map(csvCell).join(",")];
-    state.events.forEach((event) => {
-      lines.push(CSV_COLUMNS.map((column) => csvCell(event[column])).join(","));
+    state.savedSessions.forEach((session) => {
+      session.events.forEach((event) => {
+        lines.push(CSV_COLUMNS.map((column) => csvCell(event[column])).join(","));
+      });
     });
     return `${lines.join("\r\n")}\r\n`;
   }
 
   function downloadCsv() {
-    logEvent("export_csv", {
-      actionLabel: "Download CSV",
-      fromState: state.screen,
-      toState: state.screen
-    });
+    if (!state.savedSessions.length) return;
     const blob = new Blob([createCsv()], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement("a");
     const stamp = new Date().toISOString().replaceAll(":", "-").replace(".000", "");
     anchor.href = url;
-    anchor.download = `${slugify(state.participantName)}-tree-test-${stamp}.csv`;
+    anchor.download = `dnd-species-tree-test-data-${stamp}.csv`;
     document.body.appendChild(anchor);
     anchor.click();
     anchor.remove();
@@ -335,6 +354,7 @@
         <div class="actions vertical" aria-label="Choose a mode">
           <button type="button" data-action="open-name">Start tree test</button>
           <button type="button" data-action="start-free">Free roam</button>
+          <button type="button" data-action="export"${state.savedSessions.length ? "" : " disabled"}>Download CSV</button>
           <button type="button" data-action="open-notes">Wireframe notes</button>
         </div>
       </section>`;
@@ -380,7 +400,6 @@
         </div>
         ${progressHtml()}
         <div class="actions">
-          <button type="button" data-action="export">Download CSV</button>
           <button type="button" data-action="give-up">Give up task</button>
         </div>
       </div>`;
@@ -532,7 +551,6 @@
         <div class="test-toolbar">
           <div>${escapeHtml(state.participantName)}</div>
           ${progressHtml()}
-          <button type="button" data-action="export">Download CSV</button>
         </div>
         <div class="panel">
           <h1 id="recorded-title">Selection recorded</h1>
@@ -547,7 +565,7 @@
         <div class="panel">
           <h1 id="complete-title">Test complete</h1>
           <div class="actions">
-            <button type="button" data-action="export">Download CSV</button>
+            <button type="button" data-action="home">Return to main menu</button>
             <button type="button" data-action="new-test">Start another participant</button>
           </div>
         </div>

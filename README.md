@@ -20,7 +20,7 @@ Edit the applicable species record in `data.js`. The `types` array enables inten
 
 ## Data collection
 
-Test activity exists only in browser memory and is never transmitted. Participants can download one CSV containing event rows and task-result rows. Free-roam activity is not recorded. Refreshing or closing the page clears an unfinished session.
+Completed test sessions are stored in this browser's local storage and are never transmitted. The main menu's Download CSV button exports all completed sessions as one file containing event rows and task-result rows. Free-roam activity is not recorded, and refreshing or closing the page still clears an unfinished session. Completed data remains available on the same browser and device until that site's browser storage is cleared.
 
 ## GitHub Pages
 
